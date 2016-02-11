@@ -1,0 +1,8 @@
+docs/build/*
+.coverage
+build/
+*.pyc
+*.eggs
+*.egg
+*.egg-info/
+
