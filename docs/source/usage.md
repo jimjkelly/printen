@@ -160,8 +160,9 @@ for example, you could just do the following in a manage.py:
     from printen.utils import rebuild_indices, delete_indices
 
     @manager.command
-    def drop_search_indices():
-        delete_indices()
+    def drop_search_indices(indices):
+        indices = indices.split(',')
+        delete_indices(indices)
 
     @manager.command
     def rebuild_indices():
@@ -175,6 +176,18 @@ Now to do a bulk index of all your model data:
     $ python manage.py rebuild_indices
 
 That's it. Your data is now in Elasticsearch.
+
+For removing your indices entirely (as opposed to updating
+data by calling the rebuild_indices command or by responding
+to signals as is discussed below), you can call the
+`drop_search_indices` command along with the name of the
+index or indices you want to drop:
+
+    $ python manage.py drop_search_indices myindex
+
+If you have multiple indices, you can separate them by
+commas.
+
 
 Querying Your Index
 ===================
