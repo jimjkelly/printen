@@ -60,8 +60,8 @@ setup(
         'Intended Audience :: Developers',
         'Environment :: Web Environment',
         'Programming Language :: Python',
-        'Framework :: PeeWee',
-        'Framework :: Django'
+        'Framework :: Flask',
+        'Framework :: Django',
         'Topic :: Internet :: WWW/HTTP :: WSGI',
         'Natural Language :: English',
         'Programming Language :: Python :: 2',

@@ -50,12 +50,9 @@ To see the complete documentation, visit Printen's documentation on [Read The Do
 Installation
 ------------
 
-Currently Printen is only available from GitHub. When the
-API stabilizes, it would be available via PyPi as well.
-
 Printen can still be intalled via pip:
 
-    $ pip install https://github.com/jimjkelly/printen@develop
+    $ pip install printen
 
 or if you have the source locally:
 

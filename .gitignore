@@ -1,6 +1,7 @@
 docs/build/*
 .coverage
 build/
+dist/
 *.pyc
 *.eggs
 *.egg
