@@ -36,6 +36,12 @@ choosy about what Python framework you use it with (essentially
 the opposite of Haystack - choosy about the search engine, not
 choosy about the Python framework).
 
+Elasticsearch Compatibility
+---------------------------
+
+Printen is expected to be compatible with Elasticsearch 2.0
+and above.
+
 Documentation
 -------------
 
