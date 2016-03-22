@@ -143,7 +143,8 @@ def generate_aliases_for_removal():
 def generate_actions(indices=None, aliases_for_removal=None):
     actions = []
     indices = indices or []
-    aliases_for_removal = aliases_for_removal or []
+    aliases_for_removal = aliases_for_removal or collections.defaultdict(lambda: [])
+
     for index_alias, index_name in indices:
         for item in aliases_for_removal[index_alias]:
             actions.append({
