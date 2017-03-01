@@ -4,21 +4,15 @@
 import os
 from setuptools import setup, find_packages
 
-try:
-    import pypandoc
-except ImportError:
-    class pypandoc(object):
-        @classmethod
-        def convert(self, data, type, format):
-            return data
 
 __version__ = None
 with open('src/printen/version.py') as vfp:
     vd = vfp.read().strip()
     __version__ = vd.split('=')[1].strip().strip('\'').strip('"')
 
-readme = open('README.md').read()
-history = open('HISTORY.md').read().replace('.. :changelog:', '')
+
+readme = open('README.rst').read()
+history = open('HISTORY.rst').read()
 long_description = readme + '\n\n' + history
 
 
@@ -35,7 +29,6 @@ def get_requirements(filename):
 
 
 requirements = get_requirements('requirements.txt')
-setup_requirements = get_requirements('requirements_setup.txt')
 test_requirements = get_requirements('requirements_test.txt')
 
 
@@ -43,7 +36,7 @@ setup(
     name='printen',
     version=__version__ if __version__ else 'UNKNOWN',
     description='Flexible integration of Elasticsearch into Python projects.',
-    long_description=pypandoc.convert(long_description, 'rst', format='md'),
+    long_description=long_description,
     author='James Kelly',
     author_email='pthread1981@gmail.com',
     url='https://github.com/jimjkelly/printen',
@@ -68,6 +61,5 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     tests_require=test_requirements,
-    test_suite='nose.collector',
-    setup_requires=setup_requirements,
+    test_suite='nose.collector'
 )
