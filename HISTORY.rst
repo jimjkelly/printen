@@ -4,6 +4,13 @@
 History
 -------
 
+0.1.0 (2017-02-03)
+++++++++++++++++++
+
+- Fixes issue #9, repeated reindexing messes up aliases.
+- Expanded test coverage.
+
+
 0.0.7 (2017-01-03)
 ++++++++++++++++++
 

@@ -264,7 +264,7 @@ def rebuild_indices(indices=None, set_aliases=True):
             # index is not somehow in them.
             if new_aliased_indices and index not in new_aliased_indices:
                 if config.settings.ELASTICSEARCH_DELETE_OLD_INDICES:
-                    delete_indices(get_indices(index))
+                    delete_indices([index, ])
 
     return created_indices, aliases
 

@@ -1,3 +1,5 @@
+import re
+import collections
 from mock import patch
 from unittest import TestCase
 from printen.mixins import ElasticsearchIndexMixin
@@ -28,11 +30,16 @@ class UtilsTests(TestCase):
     def tearDown(self):
         # Ensure we have a clean settings object
         # between runs
+        printen.config._search_types = None
         printen.config.settings = printen.config.SettingsObject()
+        printen.utils._elasticsearch_indices = collections.defaultdict(
+            lambda: []
+        )
 
     def test_get_indices(self):
         # This will raise a misconfigured when nothing
         # is configured for type classes yet.
+
         with self.assertRaises(Misconfigured):
             printen.utils.get_indices()
 
@@ -139,3 +146,26 @@ class UtilsTests(TestCase):
                 printen.mixins.DjangoElasticsearchIndexMixin
             ]
         )
+
+    @patch('printen.utils.es.delete_indices', autospec=True)
+    def test_delete_indices(self, mocked):
+        printen.utils.delete_indices(['foo', ])
+        mocked.assert_called_with(['foo', ])
+
+    @patch('printen.utils.es.create_index', autospec=True)
+    @patch('printen.utils.es.get_aliases', autospec=True)
+    @patch('printen.utils.es.update_aliases', autospec=True)
+    def test_create_indices(self, mocked_update, mocked_get, mocked_create):
+        printen.config.configure({
+            'ELASTICSEARCH_TYPE_CLASSES': [
+                '{}.DummyIndex'.format(__name__)
+            ]
+        })
+
+        printen.utils.create_indices()
+        assert(mocked_create.called)
+        assert(mocked_create.call_args[0][1] == {})
+        assert(re.match(
+            'index-[0-9]{8}-[0-9]{6}',
+            mocked_create.call_args[0][0]
+        ))
