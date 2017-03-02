@@ -12,7 +12,7 @@ with open('src/printen/version.py') as vfp:
 
 
 readme = open('README.rst').read()
-history = open('HISTORY.rst').read()
+history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 long_description = readme + '\n\n' + history
 
 

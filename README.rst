@@ -1,7 +1,7 @@
 Printen
 =======
 
-Printen is the a simple, flexible module for integrating
+Printen is a simple, flexible module for integrating
 Elasticsearch into Python projects - especially projects
 utilizing Peewee or Django models.
 
