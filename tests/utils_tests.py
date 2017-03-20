@@ -23,6 +23,21 @@ class DummyIndex(ElasticsearchIndexMixin):
     pass
 
 
+class DummyIndexMapping(ElasticsearchIndexMixin):
+    @classmethod
+    def get_type_mapping(cls):
+        return {
+            'properties': {
+                'foo': {
+                    'type': 'string'
+                },
+                'bar': {
+                    'type': 'string'
+                }
+            }
+        }
+
+
 class UtilsTests(TestCase):
     def setUp(self):
         printen.config.configure(ELASTICSEARCH_SETTINGS)
@@ -168,4 +183,27 @@ class UtilsTests(TestCase):
         assert(re.match(
             'index-[0-9]{8}-[0-9]{6}',
             mocked_create.call_args[0][0]
+        ))
+
+    @patch('printen.utils.es.create_index', autospec=True)
+    @patch('printen.utils.es.get_aliases', autospec=True)
+    @patch('printen.utils.es.update_aliases', autospec=True)
+    def test_create_indices_custom_mapping(self, m_update, m_get, m_create):
+        printen.config.configure({
+            'ELASTICSEARCH_TYPE_CLASSES': [
+                '{}.DummyIndexMapping'.format(__name__)
+            ]
+        })
+
+        printen.utils.create_indices()
+        assert(m_create.called)
+        assert(m_create.call_args[0][1] == {
+            'mappings': {
+                'DummyIndexMapping': DummyIndexMapping.get_type_mapping()
+            }
+        })
+
+        assert(re.match(
+            'index-[0-9]{8}-[0-9]{6}',
+            m_create.call_args[0][0]
         ))

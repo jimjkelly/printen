@@ -20,21 +20,23 @@ or a dedicated class for search.
 As an example, we'll create a dedicated search class,
 using Peewee as our ORM:
 
-    from printen.mixins import PeeweeElasticsearchIndexMixin
-    import models
+```Python
+from printen.mixins import PeeweeElasticsearchIndexMixin
+import models
 
-    class BlogPostSearch(PeeweeElasticsearchIndexMixin):
-        model = models.BlogPost
+class BlogPostSearch(PeeweeElasticsearchIndexMixin):
+    model = models.BlogPost
 
-        @classmethod
-        def get_document(cls, obj):
-            return {
-                'id': obj.id,
-                'title': obj.title,
-                'content': obj.content,
-                'tags': obj.tags,
-                'author': obj.author
-            }
+    @classmethod
+    def get_document(cls, obj):
+        return {
+            'id': obj.id,
+            'title': obj.title,
+            'content': obj.content,
+            'tags': obj.tags,
+            'author': obj.author
+        }
+```
 
 Pretty simple, huh? All you need to do is tell the class
 what model it will indexing by setting the model attribute,
@@ -42,10 +44,40 @@ in this case to models.BlogPost. Then override the
 get_document method, so that you can specify what fields you
 want indexed. The obj passed in here is just an instance of
 models.BlogPost - the model you specified. Return a dictionary
-where each key is a field in the Elasitcsearch document. Once
+where each key is a field in the Elasticsearch document. Once
 you also tell the class what model it uses (in this case
-models.BlogPost) you are all set. If you are using Peewee
-(or Django, in which case you simply use the
+models.BlogPost) you are all set.
+
+Thanks to the magic of [dynamic mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html#_dynamic_mapping)
+you don't need to define how Elasitcsearch maps your documents before hand, but
+should you want to gain extra control over this, you can do so by creating
+a `get_type_mapping` classmethod, like so:
+
+```Python
+@classmethod
+def get_type_mapping(cls):
+    return {
+        'properties': {
+            'id': {
+                'type': 'long'
+            },
+            'title': {
+                'type': 'text'
+            },
+            'content': {
+                'type': 'text'
+            },
+            'tags': {
+              'type':  'keyword'
+            },
+            'author': {
+              'type': 'text'
+            }
+        }
+    }
+```
+
+If you are using Peewee (or Django, in which case you simply use the
 DjangoElasticsearchIndexMixin) you can skip to the next
 section.
 
@@ -55,34 +87,36 @@ ElasticsearchIndexMixin does not. If you are using another ORM,
 or some other sort of persistence for your data, it's not too
 hard to use the ElasticsearchIndexMixin directly:
 
-    from printen.mixins import ElasticsearchIndexMixin
-    import models
+```Python
+from printen.mixins import ElasticsearchIndexMixin
+import models
 
-    class BlogPostSearch(ElasticsearchIndexMixin):
-        model = models.BlogPost
+class BlogPostSearch(ElasticsearchIndexMixin):
+    model = models.BlogPost
 
-        @classmethod
-        def get_document(cls, obj):
-            return {
-                'id': obj.id,
-                'title': obj.title,
-                'content': obj.content,
-                'tags': obj.tags,
-                'author': obj.author
-            }
+    @classmethod
+    def get_document(cls, obj):
+        return {
+            'id': obj.id,
+            'title': obj.title,
+            'content': obj.content,
+            'tags': obj.tags,
+            'author': obj.author
+        }
 
-        @classmethod
-        def get_document_id(cls, obj):
-            return obj.id
+    @classmethod
+    def get_document_id(cls, obj):
+        return obj.id
 
-        @classmethod
-        def get_queryset(cls):
-            return cls.queryset
+    @classmethod
+    def get_queryset(cls):
+        return cls.queryset
 
-        @classmethod
-        def queryset_iterator(cls, queryset):
-            for result in queryset:
-                yield result
+    @classmethod
+    def queryset_iterator(cls, queryset):
+        for result in queryset:
+            yield result
+```
 
 The model attribute and get_document method should be familiar
 to you - our assumption here is that regardless of what the
@@ -115,19 +149,21 @@ need to tell Printen to use them as well as let it know about
 where your Elasticsearch server is and configure other
 settings. Configuring Printen is easy:
 
-    from printen.config import configure
+```Python
+from printen.config import configure
 
-    configure({
-        'ELASTICSEARCH_DELETE_OLD_INDICES': True,
-        'ELASTICSEARCH_INDEX_NAME': 'example',
-        'ELASTICSEARCH_TYPE_CLASSES': [
-            'app.search.BlogPost',
-            'app.search.Comment'
-        ],
-        'ELASTICSEARCH_CONNECTION_PARAMS': {
-            'hosts': 'http://127.0.0.1:9200',
-        },
-    })
+configure({
+    'ELASTICSEARCH_DELETE_OLD_INDICES': True,
+    'ELASTICSEARCH_INDEX_NAME': 'example',
+    'ELASTICSEARCH_TYPE_CLASSES': [
+        'app.search.BlogPost',
+        'app.search.Comment'
+    ],
+    'ELASTICSEARCH_CONNECTION_PARAMS': {
+        'hosts': 'http://127.0.0.1:9200',
+    },
+})
+```
 
 If using Flask, a good place to put this is after your app
 configuration is loaded:
@@ -156,20 +192,22 @@ Building Your Index
 Building your indices is pretty straight forward. If you were using Flask,
 for example, you could just do the following in a manage.py:
 
-    from flask.ext.script import Manager
-    from printen.utils import rebuild_indices, delete_indices
+```Python
+from flask.ext.script import Manager
+from printen.utils import rebuild_indices, delete_indices
 
-    @manager.command
-    def drop_search_indices(indices):
-        indices = indices.split(',')
-        delete_indices(indices)
+@manager.command
+def drop_search_indices(indices):
+    indices = indices.split(',')
+    delete_indices(indices)
 
-    @manager.command
-    def rebuild_indices():
-        rebuild_indices()
+@manager.command
+def rebuild_indices():
+    rebuild_indices()
 
-    if __name__ == "__main__":
-        manager.run()
+if __name__ == "__main__":
+    manager.run()
+```
 
 Now to do a bulk index of all your model data:
 
@@ -197,41 +235,43 @@ easy using the Elasticsearch module, which Printen depends already
 anyway. Here's an example endpoint you could have in a Flask
 endpoint.
 
-    import printen.config
+```Python
+import printen.config
 
-    @app.route('/api/search/', methods=['GET'])
-    def search():
-        if request.method == 'GET':
-            request_data = request.args
-        else:
-            raise NotImplementedError('{} not supported!'.format(request.method))
+@app.route('/api/search/', methods=['GET'])
+def search():
+    if request.method == 'GET':
+        request_data = request.args
+    else:
+        raise NotImplementedError('{} not supported!'.format(request.method))
 
-        query = request_data.get('query')
-        search_types = printen.config.get_search_types()
-        search_type = search_types.get(request_data.get('search_type'))
+    query = request_data.get('query')
+    search_types = printen.config.get_search_types()
+    search_type = search_types.get(request_data.get('search_type'))
 
-        if not search_type:
-            return ''
+    if not search_type:
+        return ''
 
-        if query:
-            query_dict = {
-                'simple_query_string': {
-                    'query': query
-                }
+    if query:
+        query_dict = {
+            'simple_query_string': {
+                'query': query
             }
-        else:
-            query_dict = {
-                'match_all': {}
-            }
+        }
+    else:
+        query_dict = {
+            'match_all': {}
+        }
 
-        es = search_type.get_es()
-        return json.dumps(es.search(
-            index=search_type.get_index_name(),
-            doc_type=search_type.model._meta.name,
-            body={
-                'query': query_dict
-            }
-        ), indent=4, separators=(',', ': '))
+    es = search_type.get_es()
+    return json.dumps(es.search(
+        index=search_type.get_index_name(),
+        doc_type=search_type.model._meta.name,
+        body={
+            'query': query_dict
+        }
+    ), indent=4, separators=(',', ': '))
+```
 
 Reviewing this a bit, the endpoint expects a GET call with a query
 and search_type. We retrieve our search_types from printen, which
@@ -254,19 +294,21 @@ or [Peewee Signals](http://docs.peewee-orm.com/en/latest/peewee/playhouse.html#s
 to reindex an individual instance when it is created, modified,
 or deleted. An example using Peewee:
 
-    import playhouse.signals
-    import models
+```Python
+import playhouse.signals
+import models
 
-    playhouse.signals.post_save.connect(
-        BlogPostSearch.save_handler,
-        'BlogPostSave',
-        sender=models.BlogPost
-    )
-    playhouse.signals.post_delete.connect(
-        BlogPostSearch.delete_handler,
-        'BlogPostDelete',
-        sender=models.BlogPost
-    )
+playhouse.signals.post_save.connect(
+    BlogPostSearch.save_handler,
+    'BlogPostSave',
+    sender=models.BlogPost
+)
+playhouse.signals.post_delete.connect(
+    BlogPostSearch.delete_handler,
+    'BlogPostDelete',
+    sender=models.BlogPost
+)
+```
 
 This ensures that changes to your models are reflected immediately
 in the search index, but it has the problem that the default

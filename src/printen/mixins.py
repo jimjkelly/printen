@@ -95,10 +95,23 @@ class ElasticsearchIndexMixin(object):
 
     @classmethod
     def get_type_mapping(cls):
-        """Overridable per-model type mapping for
-        Elasticsearch.
+        """Overridable per-model type mapping for Elasticsearch. Ensure you
+        enclose the field definitions in a `properties` key, for example:
 
         :returns:  Type mapping for this type used when creating the index.
+
+        :Example:
+
+        @classmethod
+        def get_type_mapping(cls):
+            return {
+                'properties': {
+                    'foo': {'type': 'text'},
+
+                    'bar': {'type': 'keyword'}
+                }
+            }
+
         """
         return {}
 
