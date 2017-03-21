@@ -4,7 +4,7 @@ in a handy single location
 """
 
 from elasticsearch import Elasticsearch
-import config
+from . import config
 
 
 def get_aliases():

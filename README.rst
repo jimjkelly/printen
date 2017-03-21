@@ -40,6 +40,12 @@ Documentation
 To see the complete documentation, visit Printen's documentation_ on Read the
 Docs.
 
+Requirements
+------------
+
+Printen works with Python 2.7 or 3.6 and requires a version of
+`Elasticsearch DSL`_ between 2 and 3, as per the requirements.txt.
+
 Installation
 ------------
 
@@ -66,5 +72,6 @@ This was inspired by `James Addison's`_ `django-simple-elasticsearch`_.
 .. _`django-simple-elasticsearch`: https://github.com/jaddison/django-simple-elasticsearch
 .. _`Python Elasticsearch Client`: http://elasticsearch-py.readthedocs.org/en/master/index.html
 .. _documentation: http://printen.readthedocs.org/
+.. _`Elasticsearch DSL`: https://github.com/elastic/elasticsearch-dsl-py
 .. _`BSD License`: LICENSE.md
 .. _`James Addison's`: https://github.com/jaddison

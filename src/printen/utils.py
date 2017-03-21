@@ -5,9 +5,9 @@ import datetime
 import collections
 from importlib import import_module
 from .exceptions import Misconfigured
-import mixins
-import config
-import es
+from . import mixins
+from . import config
+from . import es
 
 
 _elasticsearch_indices = collections.defaultdict(lambda: [])

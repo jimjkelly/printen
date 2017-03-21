@@ -2,6 +2,7 @@ docs/build/*
 .coverage
 build/
 dist/
+.tox/
 *.pyc
 *.eggs
 *.egg

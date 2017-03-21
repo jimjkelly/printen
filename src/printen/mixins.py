@@ -1,7 +1,7 @@
 import gc
 from elasticsearch import Elasticsearch, TransportError
 from .exceptions import MissingObjectError
-import config
+from . import config
 
 
 class ElasticsearchIndexMixin(object):

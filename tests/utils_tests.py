@@ -114,11 +114,11 @@ class UtilsTests(TestCase):
         )
 
         self.assertEqual(
-            printen.utils.get_alias_names([
+            set(printen.utils.get_alias_names([
                 ('test', 'test-123456'),
                 ('tests', 'test-234567')
-            ]),
-            ['test', 'tests']
+            ])),
+            set(['test', 'tests'])
         )
 
     @patch('printen.utils.es.get_aliases', autospec=True)
@@ -154,12 +154,12 @@ class UtilsTests(TestCase):
 
     def test_find_search_types(self):
         # A fairly meh test, but meh.
-        self.assertItemsEqual(
-            printen.utils.find_search_types(printen),
-            [
+        self.assertEqual(
+            set(printen.utils.find_search_types(printen)),
+            set([
                 printen.mixins.PeeweeElasticsearchIndexMixin,
                 printen.mixins.DjangoElasticsearchIndexMixin
-            ]
+            ])
         )
 
     @patch('printen.utils.es.delete_indices', autospec=True)

@@ -48,8 +48,9 @@ def get_search_types():
 
     :returns:  A dictionary of search type classes.
     """
+    global _search_types
+
     if not _search_types:
-        global _search_types
         _search_types = {
             search_type.get_type_name(): search_type
             for search_type in [
